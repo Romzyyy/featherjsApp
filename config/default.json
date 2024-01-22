@@ -9,5 +9,32 @@
     "default": 10,
     "max": 50
   },
-  "mongodb": "mongodb://featherApp_tooburstby:5d46a369e9e07331edff9bb233ed09be67ad26a8@o34.h.filess.io:27017/featherApp_tooburstby"
+  "mongodb": "mongodb://featherApp_tooburstby:5d46a369e9e07331edff9bb233ed09be67ad26a8@o34.h.filess.io:27017/featherApp_tooburstby",
+  "authentication": {
+    "entity": "user",
+    "service": "users",
+    "secret": "jofn5pHIvccd2AVatppKMvONMG15QgLT",
+    "authStrategies": [
+      "jwt",
+      "local"
+    ],
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "oauth": {
+      "github": {
+        "key": "<Client ID>",
+        "secret": "<Client secret>"
+      }
+    }
+  }
 }
