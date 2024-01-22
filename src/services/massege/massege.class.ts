@@ -4,30 +4,23 @@ import { MongoDBService } from '@feathersjs/mongodb'
 import type { MongoDBAdapterParams, MongoDBAdapterOptions } from '@feathersjs/mongodb'
 
 import type { Application } from '../../declarations'
-import type { User, UserData, UserPatch, UserQuery } from './users.schema'
-import { Collection } from 'mongodb'
+import type { Massege, MassegeData, MassegePatch, MassegeQuery } from './massege.schema'
 
-export type { User, UserData, UserPatch, UserQuery }
+export type { Massege, MassegeData, MassegePatch, MassegeQuery }
 
-export interface UserParams extends MongoDBAdapterParams<UserQuery> {}
+export interface MassegeParams extends MongoDBAdapterParams<MassegeQuery> {}
 
 // By default calls the standard MongoDB adapter service methods but can be customized with your own functionality.
-export class UserService<ServiceParams extends Params = UserParams> extends MongoDBService<
-  User,
-  UserData,
-  UserParams,
-  UserPatch
+export class MassegeService<ServiceParams extends Params = MassegeParams> extends MongoDBService<
+  Massege,
+  MassegeData,
+  MassegeParams,
+  MassegePatch
 > {}
 
 export const getOptions = (app: Application): MongoDBAdapterOptions => {
   return {
     paginate: app.get('paginate'),
-    Model: app
-      .get('mongodbClient')
-      .then((db) => db.collection('users'))
-      .then((collection) => {
-        collection.createIndex({ email: 1 }, { unique: true })
-        return collection
-      })
+    Model: app.get('mongodbClient').then((db) => db.collection('massege'))
   }
 }

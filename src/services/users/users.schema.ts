@@ -14,8 +14,11 @@ export const userSchema = Type.Object(
   {
     _id: ObjectIdSchema(),
     email: Type.String(),
-    password: Type.Optional(Type.String()),
-    githubId: Type.Optional(Type.String())
+    password: Type.String(),
+    firstName: Type.String(),
+    lastName: Type.String(),
+    githubId: Type.Optional(Type.String()),
+    createdAt: Type.Number()
   },
   { $id: 'User', additionalProperties: false }
 )
@@ -29,13 +32,16 @@ export const userExternalResolver = resolve<User, HookContext<UserService>>({
 })
 
 // Schema for creating new entries
-export const userDataSchema = Type.Pick(userSchema, ['email', 'password', 'githubId'], {
+export const userDataSchema = Type.Pick(userSchema, ['email', 'password', 'firstName', 'lastName'], {
   $id: 'UserData'
 })
 export type UserData = Static<typeof userDataSchema>
 export const userDataValidator = getValidator(userDataSchema, dataValidator)
 export const userDataResolver = resolve<User, HookContext<UserService>>({
-  password: passwordHash({ strategy: 'local' })
+  password: passwordHash({ strategy: 'local' }),
+  createdAt: async () => {
+    return Date.now()
+  }
 })
 
 // Schema for updating existing entries
@@ -49,7 +55,7 @@ export const userPatchResolver = resolve<User, HookContext<UserService>>({
 })
 
 // Schema for allowed query properties
-export const userQueryProperties = Type.Pick(userSchema, ['_id', 'email', 'githubId'])
+export const userQueryProperties = Type.Pick(userSchema, ['_id', 'email', 'firstName', 'lastName'])
 export const userQuerySchema = Type.Intersect(
   [
     querySyntax(userQueryProperties),
