@@ -22,7 +22,12 @@ export const massegeSchema = Type.Object(
 )
 export type Massege = Static<typeof massegeSchema>
 export const massegeValidator = getValidator(massegeSchema, dataValidator)
-export const massegeResolver = resolve<Massege, HookContext<MassegeService>>({})
+export const massegeResolver = resolve<Massege, HookContext<MassegeService>>({
+  user: virtual(async (message, context) => {
+    // Associate the user that sent the message
+    return context.app.service('users').get(message.userId)
+  })
+})
 
 export const massegeExternalResolver = resolve<Massege, HookContext<MassegeService>>({})
 
@@ -53,7 +58,7 @@ export const massegePatchResolver = resolve<Massege, HookContext<MassegeService>
 })
 
 // Schema for allowed query properties
-export const massegeQueryProperties = Type.Pick(massegeSchema, ['_id', 'text'])
+export const massegeQueryProperties = Type.Pick(massegeSchema, ['_id', 'text', 'createdAt', 'userId'])
 export const massegeQuerySchema = Type.Intersect(
   [
     querySyntax(massegeQueryProperties),
@@ -64,4 +69,14 @@ export const massegeQuerySchema = Type.Intersect(
 )
 export type MassegeQuery = Static<typeof massegeQuerySchema>
 export const massegeQueryValidator = getValidator(massegeQuerySchema, queryValidator)
-export const massegeQueryResolver = resolve<MassegeQuery, HookContext<MassegeService>>({})
+export const massegeQueryResolver = resolve<MassegeQuery, HookContext<MassegeService>>({
+  userId: async (value, user, context) => {
+    // We want to be able to find all messages but
+    // only let a user modify their own messages otherwise
+    if (context.params.user && context.method !== 'find') {
+      return context.params.user.id
+    }
+
+    return value
+  }
+})
