@@ -4,6 +4,7 @@ import { Type, getValidator, querySyntax } from '@feathersjs/typebox'
 import { ObjectIdSchema } from '@feathersjs/typebox'
 import type { Static } from '@feathersjs/typebox'
 import { passwordHash } from '@feathersjs/authentication-local'
+import crypto from 'crypto'
 
 import type { HookContext } from '../../declarations'
 import { dataValidator, queryValidator } from '../../validators'
@@ -18,7 +19,8 @@ export const userSchema = Type.Object(
     firstName: Type.String(),
     lastName: Type.String(),
     githubId: Type.Optional(Type.String()),
-    createdAt: Type.Number()
+    createdAt: Type.Number(),
+    avatar: Type.Optional(Type.String())
   },
   { $id: 'User', additionalProperties: false }
 )
@@ -32,15 +34,30 @@ export const userExternalResolver = resolve<User, HookContext<UserService>>({
 })
 
 // Schema for creating new entries
-export const userDataSchema = Type.Pick(userSchema, ['email', 'password', 'firstName', 'lastName'], {
-  $id: 'UserData'
-})
+export const userDataSchema = Type.Pick(
+  userSchema,
+  ['email', 'password', 'firstName', 'lastName', 'avatar'],
+  {
+    $id: 'UserData'
+  }
+)
 export type UserData = Static<typeof userDataSchema>
 export const userDataValidator = getValidator(userDataSchema, dataValidator)
 export const userDataResolver = resolve<User, HookContext<UserService>>({
   password: passwordHash({ strategy: 'local' }),
   createdAt: async () => {
     return Date.now()
+  },
+  avatar: async (value, user) => {
+    // If the user passed an avatar image, use it
+    if (value !== undefined) {
+      return value
+    }
+
+    // Gravatar uses MD5 hashes from an email address to get the image
+    const hash = crypto.createHash('md5').update(user.email.toLowerCase()).digest('hex')
+    // Return the full avatar URL
+    return `https://s.gravatar.com/avatar/${hash}?s=60`
   }
 })
 
