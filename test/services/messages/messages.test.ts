@@ -4,7 +4,7 @@ import { app } from '../../../src/app'
 
 describe('messages service', () => {
   it('registered the service', () => {
-    const service = app.service('messages')
+    const service = app.service('massege')
 
     assert.ok(service, 'Registered the service')
   })
